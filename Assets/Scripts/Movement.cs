@@ -9,7 +9,7 @@ public class Movement : MonoBehaviour
     public float speed;
     public float croughSpeed;
 
-    public bool croughing;
+    public bool crouching;
 
     // Start is called before the first frame update
     void Start() {
@@ -18,19 +18,27 @@ public class Movement : MonoBehaviour
 
     // Update is called once per frame
     void Update() {
-        Vector2 input = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
+        Vector3 input = new Vector3(Input.GetAxisRaw("Horizontal"), 0, Input.GetAxisRaw("Vertical"));
 
-        if(!croughing)
-            contr.Move(new Vector3(input.x, 0, input.y) * speed * Time.deltaTime);
-        else if (croughing)
-            contr.Move(new Vector3(input.x, 0, input.y) * croughSpeed * Time.deltaTime);
+        if (input.magnitude > 0) {
+            mannetje.SetBool("Walking", true);
+            transform.LookAt(transform.position + input, Vector3.up);
+        } 
+        else {
+            mannetje.SetBool("Walking", false);
+        }
+
+        if(!crouching)
+            contr.Move(new Vector3(input.x, 0, input.z) * speed * Time.deltaTime);
+        else if (crouching)
+            contr.Move(new Vector3(input.x, 0, input.z) * croughSpeed * Time.deltaTime);
 
         if (Input.GetKeyDown(KeyCode.LeftControl)) {
-            croughing = !croughing;
+            crouching = !crouching;
 
-            if (croughing)
+            if (crouching)
                 GoSmol();
-            else if (!croughing)
+            else if (!crouching)
                 GoBig();
         }
     }
@@ -38,10 +46,16 @@ public class Movement : MonoBehaviour
     void GoSmol() {
         contr.height = .5f;
         contr.center = new Vector3(0, .5f, 0);
+
+        mannetje.SetBool("Walking", false);
+        mannetje.SetTrigger("Switch");
     }
 
     void GoBig() {
         contr.height = 1f;
         contr.center = new Vector3(0, 1f, 0);
+
+        mannetje.SetBool("Walking", false);
+        mannetje.SetTrigger("Switch");
     }
 }
