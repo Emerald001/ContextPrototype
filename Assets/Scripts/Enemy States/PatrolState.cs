@@ -6,7 +6,7 @@ public class PatrolState : EnemyState {
 
     public List<Transform> positions;
 
-    public PatrolState(EnemyAI owner, List<Transform> positions) : base(owner) {
+    public PatrolState(StateMachine<EnemyAI> stateMachine, EnemyAI owner, List<Transform> positions) : base(stateMachine, owner) {
         this.positions = positions;
     }
 

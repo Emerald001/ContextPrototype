@@ -11,10 +11,10 @@ public class EnemyAI : MonoBehaviour
 
     private Vector3 currentPos;
     private int index;
-    private StateMachine<EnemyState> enemyStateMachine = new StateMachine<EnemyState>(); 
+    private StateMachine<EnemyAI> enemyStateMachine; 
 
     void Start() {
-        
+        enemyStateMachine = new StateMachine<EnemyAI>(this);
     }
 
     void Update() {
@@ -45,12 +45,12 @@ public class EnemyAI : MonoBehaviour
         return Vector3.Distance(transform.position, player.transform.position) < viewDis;
     }
 
-    public void AddTransitionWithBool(State _state, bool _bool, System.Type _stateTo) {
-        _state.AddTransition(new Transition(
+    public void AddTransitionWithBool(State<EnemyAI> state, bool check, System.Type stateTo) {
+        state.AddTransition(new Transition<EnemyAI>(
             (x) => {
-                if (_bool)
+                if (check)
                     return true;
                 return false;
-            }, _stateTo));
+            }, stateTo));
     }
 }

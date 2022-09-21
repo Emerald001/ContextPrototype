@@ -2,10 +2,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public abstract class EnemyState : State {
+public abstract class EnemyState : State<EnemyAI> {
     public EnemyAI owner;
 
-    public EnemyState(EnemyAI owner) {
+    public EnemyState(StateMachine<EnemyAI> stateMachine, EnemyAI owner) : base(stateMachine) {
         this.owner = owner;
     }
 
@@ -15,7 +15,7 @@ public abstract class EnemyState : State {
 
     public override void OnUpdate() {
         foreach (var transition in transitions) {
-            if (transition.condition.Invoke(owner.gameObject)) {
+            if (transition.condition.Invoke(owner)) {
                 Debug.Log("Change State");
 
                 owner.SwitchState(transition.toState);
