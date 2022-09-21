@@ -18,7 +18,7 @@ public class Movement : MonoBehaviour
 
     // Update is called once per frame
     void Update() {
-        Vector3 input = new Vector3(Input.GetAxisRaw("Horizontal"), 0, Input.GetAxisRaw("Vertical"));
+        Vector3 input = new Vector3(Input.GetAxisRaw("Horizontal"), 0, Input.GetAxisRaw("Vertical")).normalized;
 
         if (input.magnitude > 0) {
             mannetje.SetBool("Walking", true);
@@ -29,9 +29,9 @@ public class Movement : MonoBehaviour
         }
 
         if(!crouching)
-            contr.Move(new Vector3(input.x, 0, input.z) * speed * Time.deltaTime);
+            contr.Move(input * speed * Time.deltaTime);
         else if (crouching)
-            contr.Move(new Vector3(input.x, 0, input.z) * croughSpeed * Time.deltaTime);
+            contr.Move(input * croughSpeed * Time.deltaTime);
 
         if (Input.GetKeyDown(KeyCode.LeftControl)) {
             crouching = !crouching;
