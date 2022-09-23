@@ -8,33 +8,38 @@ public class EnemyAI : MonoBehaviour
     public GameObject player;
     public float speed;
     public float viewDis;
+    public float viewAngle;
 
     private Vector3 currentPos;
     private int index;
-    private StateMachine<EnemyAI> enemyStateMachine; 
+    private StateMachine<EnemyAI> enemyStateMachine;
+    private EnemyAIEvaluator evaluator;
 
     void Start() {
         enemyStateMachine = new StateMachine<EnemyAI>(this);
+        evaluator = new EnemyAIEvaluator(this);
     }
 
     void Update() {
-        if(transform.position == currentPos) {
-            index++;
+        Debug.Log(evaluator.PlayerSeen(player));
 
-            if (index > positions.Length - 1)
-                index = 0;
+        //if(transform.position == currentPos) {
+        //    index++;
 
-            currentPos = positions[index];
-        }
+        //    if (index > positions.Length - 1)
+        //        index = 0;
 
-        if(Vector3.Distance(transform.position, player.transform.position) < viewDis) {
-            currentPos = player.transform.position;
-        }
-        else {
-            currentPos = positions[index];
-        }
+        //    currentPos = positions[index];
+        //}
 
-        transform.position = Vector3.MoveTowards(transform.position, currentPos, speed * Time.deltaTime);
+        //if(Vector3.Distance(transform.position, player.transform.position) < viewDis) {
+        //    currentPos = player.transform.position;
+        //}
+        //else {
+        //    currentPos = positions[index];
+        //}
+
+        //transform.position = Vector3.MoveTowards(transform.position, currentPos, speed * Time.deltaTime);
     }
 
     public void SwitchState(System.Type stateTo) {
