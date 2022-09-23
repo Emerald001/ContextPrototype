@@ -11,15 +11,16 @@ public class EnemyAIEvaluator
     }
 
     public bool PlayerSeen(GameObject player) {
-        //Vector3 start = new Vector3(Owner.);
         Vector3 dir = (player.transform.position - owner.transform.position).normalized;
 
-        Debug.DrawRay(owner.transform.position + new Vector3(0, 1, 0), owner.transform.forward + new Vector3(owner.viewAngle, 0, 0), Color.red);
-        Debug.DrawRay(owner.transform.position + new Vector3(0, 1, 0), owner.transform.forward + new Vector3(-owner.viewAngle, 0, 0), Color.red);
+        Debug.DrawRay(owner.transform.position + new Vector3(0, 1, 0), dir, Color.red);
 
-        if (Physics.Raycast(owner.transform.position + new Vector3(0, 1, 0), dir, out var hit, owner.viewDis)) {
-            if (hit.collider.CompareTag("Player")) {
-                return true;
+        float dotProduct = Vector3.Dot(dir, owner.transform.forward);
+        if (-dotProduct < Mathf.Cos(owner.viewAngle)) {
+            if (Physics.Raycast(owner.transform.position + new Vector3(0, 1, 0), dir, out var hit, owner.viewDis)) {
+                if (hit.collider.CompareTag("Player")) {
+                    return true;
+                }
             }
         }
 

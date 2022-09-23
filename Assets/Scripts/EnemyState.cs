@@ -16,9 +16,7 @@ public abstract class EnemyState : State<EnemyAI> {
     public override void OnUpdate() {
         foreach (var transition in transitions) {
             if (transition.condition.Invoke(owner)) {
-                Debug.Log("Change State");
-
-                owner.SwitchState(transition.toState);
+                stateMachine.ChangeState(transition.toState);
                 return;
             }
         }

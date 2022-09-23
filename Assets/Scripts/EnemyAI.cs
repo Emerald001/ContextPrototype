@@ -1,55 +1,58 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AI;
 
 public class EnemyAI : MonoBehaviour
 {
     public Vector3[] positions;
     public GameObject player;
+    public GameObject exclamationPoint;
     public float speed;
+    public float walkingRange;
     public float viewDis;
     public float viewAngle;
 
-    private Vector3 currentPos;
-    private int index;
+    private NavMeshAgent agent;
     private StateMachine<EnemyAI> enemyStateMachine;
     private EnemyAIEvaluator evaluator;
 
     void Start() {
+        agent = GetComponent<NavMeshAgent>();
+
         enemyStateMachine = new StateMachine<EnemyAI>(this);
         evaluator = new EnemyAIEvaluator(this);
+
+        var IdleState = new EnemyIdleState(enemyStateMachine, this);
+        enemyStateMachine.AddState(typeof(EnemyIdleState), IdleState);
+        AddTransitionWithPrediquete(IdleState, (x) => { return evaluator.PlayerSeen(player); } , typeof(PlayerCaptureState));
+        AddTransitionWithPrediquete(IdleState, (x) => { return IdleState.IsDone; }, typeof(PatrolState));
+
+        var PatrolState = new PatrolState(enemyStateMachine, this, agent);
+        enemyStateMachine.AddState(typeof(PatrolState), PatrolState);
+        AddTransitionWithPrediquete(PatrolState, (x) => { return evaluator.PlayerSeen(player); }, typeof(PlayerCaptureState));
+        AddTransitionWithPrediquete(PatrolState, (x) => { return PatrolState.IsDone; }, typeof(EnemyIdleState));
+
+        var PlayerCaptureState = new PlayerCaptureState(enemyStateMachine, this, player, agent, exclamationPoint);
+        enemyStateMachine.AddState(typeof(PlayerCaptureState), PlayerCaptureState);
+        AddTransitionWithPrediquete(PlayerCaptureState, (x) => { return !evaluator.PlayerSeen(player); }, typeof(EnemyIdleState));
+
+        enemyStateMachine.ChangeState(typeof(EnemyIdleState));
     }
 
     void Update() {
-        Debug.Log(evaluator.PlayerSeen(player));
-
-        //if(transform.position == currentPos) {
-        //    index++;
-
-        //    if (index > positions.Length - 1)
-        //        index = 0;
-
-        //    currentPos = positions[index];
-        //}
-
-        //if(Vector3.Distance(transform.position, player.transform.position) < viewDis) {
-        //    currentPos = player.transform.position;
-        //}
-        //else {
-        //    currentPos = positions[index];
-        //}
-
-        //transform.position = Vector3.MoveTowards(transform.position, currentPos, speed * Time.deltaTime);
+        enemyStateMachine.OnUpdate();
     }
 
-    public void SwitchState(System.Type stateTo) {
-
+    public void AddTransitionWithKey(State<EnemyAI> state, KeyCode keyCode, System.Type stateTo) {
+        state.AddTransition(new Transition<EnemyAI>(
+            (x) => {
+                if (Input.GetKeyDown(keyCode)) {
+                    return true;
+                }
+                return false;
+            }, stateTo));
     }
-
-    public bool PlayerInRange() {
-        return Vector3.Distance(transform.position, player.transform.position) < viewDis;
-    }
-
     public void AddTransitionWithBool(State<EnemyAI> state, bool check, System.Type stateTo) {
         state.AddTransition(new Transition<EnemyAI>(
             (x) => {
@@ -57,5 +60,8 @@ public class EnemyAI : MonoBehaviour
                     return true;
                 return false;
             }, stateTo));
+    }
+    public void AddTransitionWithPrediquete(State<EnemyAI> state, System.Predicate<EnemyAI> predicate, System.Type stateTo) {
+        state.AddTransition(new Transition<EnemyAI>(predicate, stateTo));
     }
 }
