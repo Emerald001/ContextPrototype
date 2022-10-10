@@ -18,10 +18,16 @@ public class PlayerCaptureState : EnemyState {
     }
 
     public override void OnEnter() {
+        agent.SetDestination(owner.transform.position);
+        owner.transform.LookAt(Player.transform.position);
+
+        point.SetActive(true);
         agent.speed = 5;
     }
 
     public override void OnExit() {
+        point.SetActive(false);
+
         agent.SetDestination(owner.transform.position);
         agent.speed = 3.5f;
 

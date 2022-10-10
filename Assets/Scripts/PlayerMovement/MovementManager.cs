@@ -12,6 +12,7 @@ public class MovementManager : MonoBehaviour
     [Header("Objects Needed")]
     public GameObject Visuals;
     public GameObject GroundCheck;
+    public Animator animator;
     public Transform SlopeTransform;
     public Transform YRotationParent;
     public LayerMask GroundLayer;
@@ -46,7 +47,6 @@ public class MovementManager : MonoBehaviour
 
         var groundedState = new GroundedState(movementStateMachine);
         movementStateMachine.AddState(typeof(GroundedState), groundedState);
-        AddTransitionWithKey(groundedState, KeyCode.Space, typeof(AirbornState));
         AddTransitionWithPrediquete(groundedState, (x) => { return !evaluator.IsGrounded(); }, typeof(AirbornState));
         AddTransitionWithBool(groundedState, !evaluator.IsGrounded(), typeof(AirbornState));
         AddTransitionWithKey(groundedState, KeyCode.LeftControl, typeof(CrouchingState));
@@ -56,7 +56,6 @@ public class MovementManager : MonoBehaviour
         AddTransitionWithPrediquete(airbornState, (x) => { return evaluator.IsGrounded(); }, typeof(GroundedState));
 
         var crouchingState = new CrouchingState(movementStateMachine);
-        AddTransitionWithKey(crouchingState, KeyCode.Space, typeof(AirbornState));
         AddTransitionWithPrediquete(crouchingState, (x) => { return !evaluator.IsGrounded(); }, typeof(AirbornState));
         movementStateMachine.AddState(typeof(CrouchingState), crouchingState);
         AddTransitionWithPrediquete(crouchingState, (x) => {

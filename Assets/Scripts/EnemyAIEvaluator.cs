@@ -13,7 +13,7 @@ public class EnemyAIEvaluator
     public bool PlayerSeen(GameObject player) {
         Vector3 dir = (player.transform.position - owner.transform.position).normalized;
 
-        Debug.DrawRay(owner.transform.position + new Vector3(0, 1, 0), dir, Color.red);
+        Debug.DrawRay(owner.transform.position + new Vector3(0, .7f, 0), dir, Color.red);
 
         float dotProduct = Vector3.Dot(dir, owner.transform.forward);
         if (-dotProduct < Mathf.Cos(owner.viewAngle)) {

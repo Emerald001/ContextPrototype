@@ -8,20 +8,24 @@ public class PatrolState : EnemyState {
     public bool IsDone = false;
 
     public NavMeshAgent agent;
+    public int index;
 
-    public PatrolState(StateMachine<EnemyAI> stateMachine, EnemyAI owner, NavMeshAgent agent) : base(stateMachine, owner) {
+    public Transform[] positions;
+
+    public PatrolState(StateMachine<EnemyAI> stateMachine, EnemyAI owner, NavMeshAgent agent, Transform[] positions) : base(stateMachine, owner) {
         this.agent = agent;
+        this.positions = positions;
     }
 
     public override void OnEnter() {
         IsDone = false;
 
-        var pos = RandomNavmeshLocation(owner.transform.position, owner.walkingRange);
-        while (pos == Vector3.zero) {
-            pos = RandomNavmeshLocation(owner.transform.position, owner.walkingRange);
-        }
+        index++;
 
-        agent.SetDestination(pos);
+        if (index >= positions.Length)
+            index = 0;
+
+        agent.SetDestination(positions[index].position);
     }
 
     public override void OnExit() {
@@ -33,16 +37,5 @@ public class PatrolState : EnemyState {
 
         if (owner.transform.position == agent.destination)
             IsDone = true;
-    }
-
-    public Vector3 RandomNavmeshLocation(Vector3 pos, float radius) {
-        Vector3 randomDirection = Random.insideUnitSphere * radius;
-        randomDirection += pos;
-        Vector3 finalPosition = Vector3.zero;
-
-        if (NavMesh.SamplePosition(randomDirection, out NavMeshHit hit, radius, 1)) {
-            finalPosition = hit.position;
-        }
-        return finalPosition;
     }
 }

@@ -5,13 +5,16 @@ using UnityEngine.AI;
 
 public class EnemyAI : MonoBehaviour
 {
-    public Vector3[] positions;
+    public Transform[] positions;
+    public Vector3[] Angles;
     public GameObject player;
     public GameObject exclamationPoint;
     public float speed;
+    public float rotSpeed;
     public float walkingRange;
     public float viewDis;
     public float viewAngle;
+    public float waitTime;
 
     private NavMeshAgent agent;
     private StateMachine<EnemyAI> enemyStateMachine;
@@ -23,12 +26,12 @@ public class EnemyAI : MonoBehaviour
         enemyStateMachine = new StateMachine<EnemyAI>(this);
         evaluator = new EnemyAIEvaluator(this);
 
-        var IdleState = new EnemyIdleState(enemyStateMachine, this);
+        var IdleState = new EnemyIdleState(enemyStateMachine, this, waitTime, Angles);
         enemyStateMachine.AddState(typeof(EnemyIdleState), IdleState);
         AddTransitionWithPrediquete(IdleState, (x) => { return evaluator.PlayerSeen(player); } , typeof(PlayerCaptureState));
         AddTransitionWithPrediquete(IdleState, (x) => { return IdleState.IsDone; }, typeof(PatrolState));
 
-        var PatrolState = new PatrolState(enemyStateMachine, this, agent);
+        var PatrolState = new PatrolState(enemyStateMachine, this, agent, positions);
         enemyStateMachine.AddState(typeof(PatrolState), PatrolState);
         AddTransitionWithPrediquete(PatrolState, (x) => { return evaluator.PlayerSeen(player); }, typeof(PlayerCaptureState));
         AddTransitionWithPrediquete(PatrolState, (x) => { return PatrolState.IsDone; }, typeof(EnemyIdleState));
@@ -37,7 +40,7 @@ public class EnemyAI : MonoBehaviour
         enemyStateMachine.AddState(typeof(PlayerCaptureState), PlayerCaptureState);
         AddTransitionWithPrediquete(PlayerCaptureState, (x) => { return !evaluator.PlayerSeen(player); }, typeof(EnemyIdleState));
 
-        enemyStateMachine.ChangeState(typeof(EnemyIdleState));
+        enemyStateMachine.ChangeState(typeof(PatrolState));
     }
 
     void Update() {

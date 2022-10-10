@@ -6,14 +6,24 @@ public class EnemyIdleState : EnemyState {
 
     public bool IsDone;
     public float waitTime;
+    public float currentTime;
 
-    public EnemyIdleState(StateMachine<EnemyAI> stateMachine, EnemyAI owner) : base(stateMachine, owner) {
+    public int index;
+    Vector3[] angles;
 
+    public EnemyIdleState(StateMachine<EnemyAI> stateMachine, EnemyAI owner, float WaitTime, Vector3[] angles) : base(stateMachine, owner) {
+        waitTime = WaitTime;
+        this.angles = angles;
     }
 
     public override void OnEnter() {
         IsDone = false;
-        waitTime = Random.Range(2, 5);
+
+        currentTime = waitTime;
+
+        index++;
+        if (index >= angles.Length)
+            index = 0;
     }
 
     public override void OnExit() {
@@ -23,7 +33,9 @@ public class EnemyIdleState : EnemyState {
     public override void OnUpdate() {
         base.OnUpdate();
 
-        if (WaitTimer(ref waitTime) < 0)
+        owner.transform.eulerAngles = Vector3.MoveTowards(owner.transform.eulerAngles, angles[index], owner.rotSpeed * Time.deltaTime);
+
+        if (WaitTimer(ref currentTime) < 0)
             IsDone = true;
     }
 
